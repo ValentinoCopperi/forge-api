@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(find \"/c/Users/Copep/documents/estudios/Node - CodigoFacilito/claude-concepts-maproute/src\" -type f \\\\\\( -name \"*.js\" -o -name \"*.js.map\" -o -name \"*.d.ts\" -o -name \"*.d.ts.map\" \\\\\\) -delete)",
+      "Bash(git -C \"/c/Users/Copep/documents/estudios/Node - CodigoFacilito/claude-concepts-maproute\" show HEAD:src/types/express/index.d.ts)",
+      "Bash(git -C \"/c/Users/Copep/documents/estudios/Node - CodigoFacilito/claude-concepts-maproute\" log --all --oneline -- \"src/types/**\")",
+      "Bash(npm run:*)"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+import { $Enums, Prisma } from "@prisma/client";
+export declare const userWithRoleSelect: {
+    id: true;
+    name: true;
+    email: true;
+    userRoles: {
+        select: {
+            role: true;
+        };
+    };
+};
+export type UserWithRole = Prisma.UserGetPayload<{
+    select: typeof userWithRoleSelect;
+}>;
+export interface JwtPayload {
+    sub: number;
+    email: string;
+    roles: $Enums.Role[];
+}

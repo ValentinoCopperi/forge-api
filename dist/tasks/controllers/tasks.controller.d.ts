@@ -1,0 +1,8 @@
+import { TaskService } from "../services/task.service";
+import { Request, Response } from 'express';
+export declare class TaskController {
+    private readonly taskService;
+    constructor(taskService: TaskService);
+    findAll(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    create(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+}
