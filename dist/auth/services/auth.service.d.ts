@@ -1,5 +1,6 @@
 import { UserWithRole } from "../types/auth.types";
-import { AuthRepository } from '../repositories/auth.repository';
+import { AuthRepository } from "../repositories/auth.repository";
+import { StorageService } from "../../shared/libs/storage/storage.service";
 interface I_AuthService {
     register(data: {
         name: string;
@@ -16,10 +17,19 @@ interface I_AuthService {
     refresh(refreshToken: string): Promise<{
         accessToken: string;
     }>;
+    uploadAvatar(data: {
+        userId: number;
+        file: Express.Multer.File;
+    }): Promise<UserWithRole>;
 }
 export declare class AuthService implements I_AuthService {
     private readonly authRepository;
-    constructor(authRepository: AuthRepository);
+    private readonly storageService;
+    constructor(authRepository: AuthRepository, storageService: StorageService);
+    uploadAvatar(data: {
+        userId: number;
+        file: Express.Multer.File;
+    }): Promise<UserWithRole>;
     register(data: {
         name: string;
         email: string;

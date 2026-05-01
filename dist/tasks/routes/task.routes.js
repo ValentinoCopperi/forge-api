@@ -11,8 +11,10 @@ class TaskRoutes {
         this.initRoutes();
     }
     initRoutes() {
-        this.router.get('/', auth_middleware_1.tokenMiddleware, (req, res) => this.taskController.findAll(req, res));
-        this.router.post('/', auth_middleware_1.tokenMiddleware, (0, auth_middleware_1.roleMiddleware)([client_1.Role.DIRECTOR]), (req, res) => this.taskController.create(req, res));
+        this.router.get('/', (req, res) => this.taskController.findAll(req, res));
+        this.router.get('/cursorPaginated', (req, res) => this.taskController.findAllCursorPaginated(req, res));
+        this.router.get('/offsetPaginated', (req, res) => this.taskController.findAllOffsetPaginated(req, res));
+        this.router.post('/', (0, auth_middleware_1.roleMiddleware)([client_1.Role.DIRECTOR]), (req, res) => this.taskController.create(req, res));
         this.router.get('/fast', (req, res) => {
             res.json({ message: "pong", timestamp: Date.now() });
         });

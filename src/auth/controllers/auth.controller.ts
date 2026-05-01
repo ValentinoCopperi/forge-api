@@ -1,71 +1,68 @@
-
-import { Request, Response } from 'express';
-import { AuthService } from '../services/auth.service';
-import { loginSchema, registerSchema } from '../dtos/auth.dto';
-import { AppError } from '../../shared/errors/AppError';
-
-
+import { Request, Response } from "express";
+import { AuthService } from "../services/auth.service";
+import { loginSchema, registerSchema } from "../dtos/auth.dto";
+import { AppError } from "../../shared/errors/AppError";
 
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
+  async uploadAvatar(req: Request, res: Response) {
+    const { file } = req;
 
-    constructor(private readonly authService: AuthService) { }
+    const userId = req.user!.sub;
 
-    async uploadAvatar(req: Request, res: Response) {
+    if (!file) return res.status(400).json({ message: "File is required" });
 
-        const { file } = req;
+    const result = await this.authService.uploadAvatar({ userId, file });
+    return res.status(200).json({ data: result });
+  }
 
-        const userId = req.user!.sub
+  async register(req: Request, res: Response) {
+    const body = registerSchema.safeParse(req.body);
 
-        if (!file) return res.status(400).json({ message: 'File is required' })
-
-        const result = await this.authService.uploadAvatar({ userId, file })
-        return res.status(200).json({ data: result })
-
-
-
+    if (!body.success) {
+      return res.status(400).json({
+        errors: body.error.flatten().fieldErrors,
+      });
     }
 
-    async register(req: Request, res: Response) {
+    const user = await this.authService.register(body.data);
 
+    return res.status(200).json({
+      data: user,
+    });
+  }
 
-        const body = registerSchema.safeParse(req.body)
+  async login(req: Request, res: Response) {
+    const body = loginSchema.safeParse(req.body);
 
-        if (!body.success) {
-            return res.status(400).json({
-                errors: body.error.flatten().fieldErrors
-            })
-        }
-
-        const user = await this.authService.register(body.data);
-
-        return res.status(200).json({
-            data: user
-        })
-
-
-
+    if (!body.success) {
+      return res.status(400).json({
+        errors: body.error.flatten().fieldErrors,
+      });
     }
 
-    async login(req: Request, res: Response) {
+    const { accessToken, refreshToken } = await this.authService.login(
+      body.data,
+    );
 
+    return res.status(200).json({
+      accessToken,
+      refreshToken,
+    });
+  }
 
-        const body = loginSchema.safeParse(req.body);
+  async refreshToken(req: Request, res: Response) {
+    const { refresh_token } = req.body;
 
-        if (!body.success) {
-            return res.status(400).json({
-                errors: body.error.flatten().fieldErrors
-            })
-        }
-
-        const { accessToken, refreshToken } = await this.authService.login(body.data)
-
-        return res.status(200).json({
-            accessToken, refreshToken
-        })
-
-
-
+    if (!refresh_token) {
+      throw new AppError(`Refresh token is not defined`, 409);
     }
 
+    const { accessToken } = await this.authService.refresh(refresh_token);
+
+    return res.status(200).json({
+      accessToken,
+    });
+  }
 }

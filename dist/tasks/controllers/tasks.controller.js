@@ -1,46 +1,37 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskController = void 0;
-const AppError_1 = require("../../shared/errors/AppError");
 const tasks_dto_1 = require("../dtos/tasks.dto");
 class TaskController {
     constructor(taskService) {
         this.taskService = taskService;
     }
+    async findAllOffsetPaginated(req, res) {
+        const { page = 1, limit = 20 } = req.query;
+        const data = await this.taskService.findAllOffsetPaginated({ page: Number(page), limit: Number(limit) });
+        return res.status(200).json({ data });
+    }
+    async findAllCursorPaginated(req, res) {
+        const { cursor = 0, limit = 10 } = req.query;
+        const data = await this.taskService.findAllCursorPaginated({ cursor: Number(cursor), limit: Number(limit) });
+        return res.status(200).json({ data });
+    }
     async findAll(req, res) {
-        try {
-            const data = await this.taskService.findAll();
-            return res.status(200).json({ data });
-        }
-        catch (error) {
-            if (error instanceof AppError_1.AppError) {
-                return res.status(error.statusCode).json({ error: error.message });
-            }
-            console.error(error);
-            return res.status(500).json({ error: "Internal server error" });
-        }
+        const data = await this.taskService.findAll();
+        return res.status(200).json({ data });
     }
     async create(req, res) {
-        try {
-            const body = tasks_dto_1.createTaskDto.safeParse(req.body);
-            if (!body.success) {
-                return res.status(400).json({
-                    errors: body.error.flatten().fieldErrors
-                });
-            }
-            const new_task = await this.taskService.create({
-                title: body.data.title,
-                userId: req.user?.sub ?? 1
+        const body = tasks_dto_1.createTaskDto.safeParse(req.body);
+        if (!body.success) {
+            return res.status(400).json({
+                errors: body.error.flatten().fieldErrors
             });
-            return res.status(200).json({ data: new_task });
         }
-        catch (error) {
-            if (error instanceof AppError_1.AppError) {
-                return res.status(error.statusCode).json({ error: error.message });
-            }
-            console.error(error);
-            return res.status(500).json({ error: "Internal server error" });
-        }
+        const new_task = await this.taskService.create({
+            title: body.data.title,
+            userId: req.user?.sub ?? 1
+        });
+        return res.status(200).json({ data: new_task });
     }
 }
 exports.TaskController = TaskController;

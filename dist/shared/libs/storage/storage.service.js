@@ -4,10 +4,12 @@ exports.StorageService = void 0;
 require("multer");
 const client_s3_1 = require("@aws-sdk/client-s3");
 const storage_connection_1 = require("./storage.connection");
+const env_config_1 = require("../../configs/env.config");
 class StorageService {
     constructor() {
         this.s3 = (0, storage_connection_1.createS3Client)();
-        this.bucket = process.env.S3_BUCKET;
+        this.bucket = env_config_1.envs.S3_BUCKET;
+        this.s3Endpoint = env_config_1.envs.S3_ENDPOINT;
     }
     async uploadFile(file, key) {
         try {
@@ -18,7 +20,7 @@ class StorageService {
                 ContentType: file.mimetype
             });
             await this.s3.send(command);
-            return `${process.env.S3_ENDPOINT}/${this.bucket}/${key}`;
+            return `${this.s3Endpoint}/${this.bucket}/${key}`;
         }
         catch (error) {
             console.error('Error uploading file:', error);
@@ -37,6 +39,10 @@ class StorageService {
             console.error('Error deleting file:', error);
             throw new Error('Error deleting file');
         }
+    }
+    createKey(fileName, id) {
+        const ext = fileName.split('.').pop();
+        return `avatars/user-${String(id)}/${ext}`;
     }
 }
 exports.StorageService = StorageService;

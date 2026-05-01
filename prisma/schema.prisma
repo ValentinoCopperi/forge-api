@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -24,9 +23,10 @@ model User {
   name         String
   email        String     @unique
   passwordHash String
-   avatarUrl    String?    
+   avatarUrl    String?
   tasks        Task[]
   userRoles    UserRole[]
+  sessions     Session[]
 }
 
 model Task {
@@ -37,6 +37,20 @@ model Task {
   userId Int
   user   User   @relation(fields: [userId], references: [id])
 }
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 
 model UserRole {
   userId Int

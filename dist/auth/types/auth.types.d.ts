@@ -3,6 +3,7 @@ export declare const userWithRoleSelect: {
     id: true;
     name: true;
     email: true;
+    avatarUrl: true;
     userRoles: {
         select: {
             role: true;

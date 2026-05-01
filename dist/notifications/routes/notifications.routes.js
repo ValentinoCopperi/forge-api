@@ -2,20 +2,25 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsRoutes = void 0;
 const express_1 = require("express");
-const socket_1 = require("../../shared/libs/sockets/socket");
+const AppError_1 = require("../../shared/errors/AppError");
 class NotificationsRoutes {
-    constructor() {
-        this.notificationsPrefix = 'notifications';
+    constructor(io_) {
         this.router = (0, express_1.Router)();
+        this.io = io_;
         this.initRoutes();
     }
     initRoutes() {
-        this.router.post(`/${this.notificationsPrefix}/:socketId`, (req, res) => {
+        this.io.on('connection', (socket) => {
+            console.log('Cliente conectado:', socket.id);
+            socket.on('disconnect', () => {
+                console.log('Cliente desconectado:', socket.id);
+            });
+        });
+        this.router.post(`/:socketId`, (req, res) => {
             const { socketId } = req.params;
             if (!socketId)
-                throw new Error('SocketId is required');
-            const io = (0, socket_1.getSocket)();
-            io.to(socketId).emit('notification', {
+                throw new AppError_1.AppError('SocketId is required', 500);
+            this.io.to(socketId).emit('notification', {
                 message: `Hello user ${socketId}!`
             });
             res.status(200).json({ message: 'Notificación enviada' });

@@ -6,6 +6,7 @@ exports.userWithRoleSelect = client_1.Prisma.validator()({
     id: true,
     name: true,
     email: true,
+    avatarUrl: true,
     userRoles: {
         select: { role: true }
     }

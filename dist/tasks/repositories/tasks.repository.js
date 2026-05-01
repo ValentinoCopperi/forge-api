@@ -6,6 +6,28 @@ class TaskRepository {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async count() {
+        return await this.prisma.task.count();
+    }
+    findAllOffsetPaginated(data) {
+        const { page, limit } = data;
+        const offset = (page - 1) * limit;
+        return this.prisma.task.findMany({
+            skip: offset,
+            take: limit,
+            select: { ...tasks_types_1.taskWithUserSelect }
+        });
+    }
+    findAllCursorPaginated(data) {
+        const { cursor, limit } = data;
+        return this.prisma.task.findMany({
+            where: {
+                id: { gt: cursor || 0 }
+            },
+            take: limit || 10,
+            select: { ...tasks_types_1.taskWithUserSelect }
+        });
+    }
     findAll() {
         return this.prisma.task.findMany({
             select: { ...tasks_types_1.taskWithUserSelect }
@@ -19,6 +41,16 @@ class TaskRepository {
                 userId
             }
         });
+    }
+    async findByTitle(title) {
+        const task = await this.prisma.task.findFirst({
+            where: {
+                title: {
+                    equals: title
+                }
+            }
+        });
+        return !!task;
     }
 }
 exports.TaskRepository = TaskRepository;
